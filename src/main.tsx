@@ -1,10 +1,19 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router";
+import "./index.css";
+import Home from "./pages/home/Home";
+import QuestionnaireForm from "./pages/form-page/QuestionnaireForm";
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById("root")!;
+
+createRoot(root).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="create-quiz" element={<QuestionnaireForm />} />
+      </Routes>
+    </BrowserRouter>
+  </StrictMode>
+);
