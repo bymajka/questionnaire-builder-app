@@ -8,7 +8,6 @@ const MenuButton = ({ options, id }: { options: string[]; id: string }) => {
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close the menu if clicking outside of it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {

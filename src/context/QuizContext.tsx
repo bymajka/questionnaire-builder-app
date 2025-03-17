@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { db } from "../firebase-config";
-import { Quiz, Question } from "../components/interfaces/QuizInterfaces";
+import { Quiz } from "../components/interfaces/QuizInterfaces";
 import {
   collection,
   getDocs,
