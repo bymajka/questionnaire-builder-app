@@ -1,9 +1,29 @@
-import { useState } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
+import { QuizContext } from "../context/QuizContext";
+import { useNavigate } from "react-router";
 
-const MenuButton = ({ options }: { options: string[] }) => {
+const MenuButton = ({ options, id }: { options: string[]; id: string }) => {
   const [open, setOpen] = useState(false);
+  const quizContext = useContext(QuizContext);
+  const navigate = useNavigate();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close the menu if clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="absolute right-2 top-2">
+    <div className="absolute right-2 top-2" ref={menuRef}>
       <button
         id="dropdownMenuIconButton"
         data-dropdown-toggle="dropdownDots"
@@ -26,15 +46,55 @@ const MenuButton = ({ options }: { options: string[] }) => {
         id="dropdownDots"
         className={`z-10 ${
           open ? "block" : "hidden"
-        } bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600  absolute right-0`}
+        } bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600 absolute right-0`}
       >
         <ul
           className="py-2 text-sm text-gray-700 dark:text-gray-200"
           aria-labelledby="dropdownMenuIconButton"
         >
           {options.map((option) => {
+            if (option === "Delete") {
+              return (
+                <li key={option}>
+                  <button
+                    onClick={() => {
+                      quizContext?.deleteQuiz(id);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    {option}
+                  </button>
+                </li>
+              );
+            } else if (option === "Run") {
+              return (
+                <li key={option}>
+                  <button
+                    onClick={() => {
+                      navigate(`/run-quiz/${id}`);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    {option}
+                  </button>
+                </li>
+              );
+            } else if (option === "Edit") {
+              return (
+                <li key={option}>
+                  <button
+                    onClick={() => {
+                      navigate(`/edit-quiz/${id}`);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    {option}
+                  </button>
+                </li>
+              );
+            }
             return (
-              <li>
+              <li key={option}>
                 <a
                   href="#"
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"

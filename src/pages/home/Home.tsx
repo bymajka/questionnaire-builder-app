@@ -1,73 +1,30 @@
-import { useState, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import { QuizContext } from "../../context/QuizContext";
 import QuizCard from "./QuizCard";
 import Button from "../../utils/Button";
 import { NavLink } from "react-router";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase-config";
-
-interface Quiz {
-  id: string;
-  title?: string;
-  description?: string;
-  questions?: [];
-}
-
-// const initialQuizes: Quiz[] = [
-//   {
-//     name: "Math Quiz",
-//     description: "A quiz about basic math concepts",
-//     questions: 10,
-//   },
-//   {
-//     name: "Science Quiz",
-//     description: "A quiz about general science knowledge",
-//     questions: 15,
-//   },
-//   {
-//     name: "History Quiz",
-//     description: "A quiz about historical events",
-//     questions: 12,
-//   },
-//   {
-//     name: "Geography Quiz",
-//     description: "A quiz about world geography",
-//     questions: 8,
-//   },
-//   {
-//     name: "Literature Quiz",
-//     description: "A quiz about famous literature works",
-//     questions: 9,
-//   },
-//   {
-//     name: "Music Quiz",
-//     description: "A quiz about music theory",
-//     questions: 11,
-//   },
-// ];
+import { countResponsesForQuiz } from "../../utils/Responses";
 
 const Home = () => {
-  // const [quizes, setQuizes] = useState<Quiz[]>(initialQuizes);
-  const quizesRef = collection(db, "quizzes");
-  const [quizes, setQuizes] = useState<Quiz[]>([]);
+  const quizContext = useContext(QuizContext);
+  const [responsesCount, setResponsesCount] = useState<Record<string, number>>(
+    {}
+  );
+  if (!quizContext) return null;
+  const quizes = quizContext.quizzes;
 
   useEffect(() => {
-    const fetchQuizes = async () => {
-      try {
-        const data = await getDocs(quizesRef);
-        if (data.empty) {
-          console.warn("No quizzes found.");
-          setQuizes([]);
-          return;
-        }
-        setQuizes(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      } catch (error) {
-        console.error("Error fetching quizzes:", error);
-        setQuizes([]);
+    const fetchResponsesCount = async () => {
+      const counts: Record<string, number> = {};
+      for (const quiz of quizes) {
+        const count = await countResponsesForQuiz(quiz.id.toString());
+        counts[quiz.id.toString()] = count;
       }
+      setResponsesCount(counts);
     };
 
-    fetchQuizes();
-  }, []);
+    fetchResponsesCount();
+  }, [quizes]);
 
   return (
     <div>
@@ -80,13 +37,14 @@ const Home = () => {
         />
       </NavLink>
       <div className="grid grid-cols-3 gap-4 place-items-center">
-        {quizes.map((quiz) => (
+        {quizes?.map((quiz) => (
           <QuizCard
             key={quiz.title}
-            id={quiz.id}
+            id={quiz.id.toString()}
             title={quiz.title}
             description={quiz.description}
             questions={quiz.questions}
+            responses={responsesCount[quiz.id.toString()] || 0}
           />
         ))}
       </div>
