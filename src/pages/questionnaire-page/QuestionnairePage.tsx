@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { QuizContext } from "../../context/QuizContext";
 import { useNavigate, useParams } from "react-router";
-import { Quiz } from "../../components/interfaces/QuizInterfaces";
+import { Quiz } from "../../data/QuizInterfaces";
 import { saveResponse } from "../../utils/Responses";
 import Button from "../../utils/Button";
 import QuestionAnswersForm from "./QuestionAnswersForm";
@@ -24,7 +24,7 @@ const QuestionnairePage = () => {
       setLoading(true);
       try {
         const quiz = await quizContext?.getQuizById(id);
-        setQuiz(quiz);
+        if (quiz) setQuiz(quiz);
       } catch (error) {
         console.error("Failed to fetch questions for quiz:", error);
         setQuiz(null);
@@ -57,7 +57,9 @@ const QuestionnairePage = () => {
 
   return (
     <div className="flex flex-col mx-10 gap-2 my-5 items-center">
-      <h2 className="text-center font-bold">Questionnaire</h2>
+      <h2 className="text-center font-bold text-2xl text-blue-800">
+        Questionnaire
+      </h2>
       {!startTime ? (
         <Button text="Run" onClick={startQuiz} styles="w-1/4 mx-auto" />
       ) : (
@@ -92,7 +94,7 @@ const QuestionnairePage = () => {
             <div>
               <h3>Your Answers:</h3>
               {Object.entries(responses).map(([key, value]) => (
-                <div key={key}>
+                <div className="flex flex-row gap-2" key={key}>
                   <strong>
                     {quiz?.questions?.find((q) => q.id === key)?.questionText}:
                   </strong>

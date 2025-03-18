@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Question } from "../../components/interfaces/QuizInterfaces";
+import { Question } from "../../data/QuizInterfaces";
 
 interface QuestionFormProps {
   question: Question;
@@ -28,12 +28,12 @@ const QuestionAnswersForm = ({ question, onUpdate }: QuestionFormProps) => {
 
   return (
     <div className="flex flex-col items-center">
-      <h3 className="font-bold">{question.questionText}</h3>
+      <h3 className="font-bold underline">{question.questionText}</h3>
       {question.type === "text" && (
         <input
           type="text"
           value={answer}
-          className="placeholder:text-center text-center"
+          className="placeholder:text-center text-center border-2 rounded-md"
           onChange={handleTextChange}
           placeholder="Your answer"
         />
@@ -44,6 +44,7 @@ const QuestionAnswersForm = ({ question, onUpdate }: QuestionFormProps) => {
           {question.options.map((option) => (
             <label key={option.id}>
               <input
+                className="cursor-pointer"
                 type="checkbox"
                 value={option.optionText}
                 checked={
@@ -62,6 +63,7 @@ const QuestionAnswersForm = ({ question, onUpdate }: QuestionFormProps) => {
           {question.options.map((option) => (
             <label key={option.id}>
               <input
+                className="cursor-pointer"
                 type="radio"
                 name={question.id}
                 value={option.optionText}

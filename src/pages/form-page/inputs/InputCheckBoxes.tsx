@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { Option } from "../../../components/interfaces/QuizInterfaces";
+import { Option } from "../../../data/QuizInterfaces";
+import Button from "../../../utils/Button";
 import InputText from "./InputText";
 
 interface InputCheckBoxesProps {
+  required?: boolean;
   onUpdate: (options: Option[]) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InputCheckBoxes = ({ onUpdate, handleChange }: InputCheckBoxesProps) => {
+const InputCheckBoxes = ({
+  required,
+  onUpdate,
+  handleChange,
+}: InputCheckBoxesProps) => {
   const [options, setOptions] = useState<Option[]>([]);
 
   const handleAddOption = () => {
@@ -45,10 +51,16 @@ const InputCheckBoxes = ({ onUpdate, handleChange }: InputCheckBoxesProps) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <InputText label="Question" handleChange={handleChange} />
+      <InputText
+        required={required}
+        id="question"
+        label="Question"
+        handleChange={handleChange}
+      />
       {options.map((option, index) => (
         <div key={option.id} className="flex items-center gap-2">
           <input
+            required={required}
             type="text"
             value={option.optionText}
             onChange={(e) => handleOptionChange(index, e.target.value)}
@@ -56,26 +68,20 @@ const InputCheckBoxes = ({ onUpdate, handleChange }: InputCheckBoxesProps) => {
             className="border p-1 rounded"
           />
           <input
+            required={required}
             type="checkbox"
             checked={option.correct}
             onChange={() => handleOptionCheck(index)}
           />
-          <button
-            type="button"
+          <Button
+            text="Remove"
             onClick={() => handleRemoveOption(index)}
-            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-          >
-            Remove
-          </button>
+            styles="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+          />
         </div>
       ))}
-      <button
-        type="button"
-        onClick={handleAddOption}
-        className="bg-blue-500 text-white px-2 py-1 rounded mt-2"
-      >
-        Add Option
-      </button>
+
+      <Button onClick={handleAddOption} text="Add Option" />
     </div>
   );
 };

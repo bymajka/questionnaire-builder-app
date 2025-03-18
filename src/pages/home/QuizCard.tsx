@@ -1,4 +1,4 @@
-import { Question } from "../../components/interfaces/QuizInterfaces";
+import { Question } from "../../data/QuizInterfaces";
 import MenuButton from "../../utils/MenuButton";
 
 const operations = ["Run", "Edit", "Delete"];
@@ -12,7 +12,7 @@ interface Quiz {
 
 const QuizCard = ({ id, title, description, questions, responses }: Quiz) => {
   return (
-    <div className="border-1 relative w-96 h-52 p-4">
+    <div className="border-1 relative w-96 h-52 p-4 rounded-sm">
       <h2 className="text-2xl mb-2">{title}</h2>
       <p>{description}</p>
       <p className="absolute bottom-2 text-indigo-700">

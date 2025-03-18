@@ -1,17 +1,22 @@
 const InputText = ({
+  id,
   label,
+  required,
   handleChange,
 }: {
+  id: string;
   label: string;
+  required?: boolean;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
   return (
     <div className="flex flex-col flex-1/2">
-      <label htmlFor="input-text" className="font-bold">
+      <label htmlFor={id} className="font-bold">
         {label}
       </label>
       <input
-        name="input-text"
+        required={required}
+        id={id}
         type="text"
         className="border-2 p-2 rounded-md"
         onChange={handleChange}

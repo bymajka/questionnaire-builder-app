@@ -1,47 +1,53 @@
 import InputText from "./InputText";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "../../../utils/Button";
-import { Option } from "../../../components/interfaces/QuizInterfaces";
+import { Option } from "../../../data/QuizInterfaces";
 
 interface InputRadioProps {
+  required?: boolean;
   onUpdate: (options: Option[]) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InputRadio = ({ onUpdate, handleChange }: InputRadioProps) => {
+const InputRadio = ({ required, onUpdate, handleChange }: InputRadioProps) => {
   const [options, setOptions] = useState<Option[]>([
     { id: Date.now(), optionText: "", correct: false },
   ]);
 
-  useEffect(() => {
-    onUpdate(options);
-  }, [options, onUpdate]);
-
   const addOption = () => {
     const newOption = { id: Date.now(), optionText: "", correct: false };
-    setOptions([...options, newOption]);
+    const updatedOptions = [...options, newOption];
+    setOptions(updatedOptions);
+    onUpdate(updatedOptions);
   };
 
   const updateOption = (id: number, newText: string) => {
-    setOptions((prevOptions) =>
-      prevOptions.map((option) =>
-        option.id === id ? { ...option, optionText: newText } : option
-      )
+    const updatedOptions = options.map((option) =>
+      option.id === id ? { ...option, optionText: newText } : option
     );
+    setOptions(updatedOptions);
+    onUpdate(updatedOptions);
   };
 
   const removeOption = (id: number) => {
-    setOptions((prevOptions) =>
-      prevOptions.filter((option) => option.id !== id)
-    );
+    const updatedOptions = options.filter((option) => option.id !== id);
+    setOptions(updatedOptions);
+    onUpdate(updatedOptions);
   };
 
   return (
     <div>
-      <InputText label="Question" handleChange={handleChange} />
+      <InputText
+        required={required}
+        id="question"
+        label="Question"
+        handleChange={handleChange}
+      />
       {options.map((option) => (
         <div key={option.id} className="flex flex-row items-center gap-2">
           <InputText
+            required={required}
+            id={`option-${option.id}`}
             key={option.id}
             label="Option"
             handleChange={(e) => updateOption(option.id, e.target.value)}
@@ -58,7 +64,8 @@ const InputRadio = ({ onUpdate, handleChange }: InputRadioProps) => {
         </div>
       ))}
       <Button
-        text="Add Choice"
+        styles="mt-2"
+        text="Add Option"
         onClick={(e) => {
           e.preventDefault();
           addOption();

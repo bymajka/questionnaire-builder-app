@@ -3,7 +3,7 @@ import QuestionForm from "./QuestionForm";
 import { useState, useContext, useEffect } from "react";
 import { QuizContext } from "../../context/QuizContext";
 import InputText from "./inputs/InputText";
-import { Question, Quiz } from "../../components/interfaces/QuizInterfaces";
+import { Question, Quiz } from "../../data/QuizInterfaces";
 import { useNavigate, useParams } from "react-router";
 
 const QuestionnaireForm = () => {
@@ -57,6 +57,32 @@ const QuestionnaireForm = () => {
       return;
     }
 
+    if (questions.length === 0) {
+      alert("Quiz must have at least one question.");
+      return;
+    } else if (questions.some((question) => !question.questionText.trim())) {
+      alert("All questions must have a question text.");
+      return;
+    }
+
+    if (
+      questions.some(
+        (q) =>
+          (q.type === "single-choice" || q.type === "multiple-choices") &&
+          q.options.length === 0
+      ) ||
+      questions.some(
+        (q) =>
+          (q.type === "single-choice" || q.type === "multiple-choices") &&
+          q.options.some((option) => !option.optionText.trim())
+      )
+    ) {
+      alert(
+        "All single-choice and multiple-choice questions must have options with option text."
+      );
+      return;
+    }
+
     const newQuiz: Quiz = {
       id: Date.now().toString(),
       title: quizTitle,
@@ -67,13 +93,12 @@ const QuestionnaireForm = () => {
     try {
       if (editMode && id) {
         await quizContext?.updateQuiz(id, newQuiz);
-        navigate("/");
         alert("Quiz updated successfully!");
       } else {
         await quizContext?.addQuiz(newQuiz);
-        navigate("/");
         alert("Quiz added successfully!");
       }
+      navigate("/");
     } catch (error) {
       console.error("Error saving quiz:", error);
     }
@@ -88,15 +113,20 @@ const QuestionnaireForm = () => {
 
   return (
     <>
-      <div className="w-1/3">
-        <h2>{editMode ? "Edit Quiz" : "Create Quiz"}</h2>
+      <div className="w-1/3 m-4">
+        <h2 className="text-2xl font-bold text-blue-800">
+          {editMode ? "Edit Quiz" : "Create Quiz"}
+        </h2>
         <InputText
+          id="quiz-title"
           label="Quiz name"
+          required
           handleChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             handleInput(e, setQuizTitle)
           }
         />
         <InputText
+          id="quiz-description"
           label="Description"
           handleChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             handleInput(e, setQuizDescription)
@@ -122,7 +152,7 @@ const QuestionnaireForm = () => {
       />
 
       <Button
-        text="AddQuiz"
+        text={`${editMode ? "Update" : "Create"} Quiz`}
         onClick={() => {
           addQuizToDb();
         }}

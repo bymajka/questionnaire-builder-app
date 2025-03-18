@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Option, Question } from "../../components/interfaces/QuizInterfaces";
+import { Option, Question } from "../../data/QuizInterfaces";
 import InputText from "./inputs/InputText";
 import InputCheckBoxes from "./inputs/InputCheckBoxes";
 import InputRadio from "./inputs/InputRadio";
@@ -55,6 +55,8 @@ const QuestionForm = ({ question, onUpdate, onRemove }: QuestionFormProps) => {
       <div className="flex flex-row w-[600px] gap-2 items-center m-4">
         {questionType === "text" && (
           <InputText
+            required
+            id={`question-${question.id}`}
             label="Question"
             handleChange={(e) => {
               handleQuestionTextChange(e.target.value);
@@ -63,24 +65,26 @@ const QuestionForm = ({ question, onUpdate, onRemove }: QuestionFormProps) => {
         )}
         {questionType === "single-choice" && (
           <InputRadio
+            required
             onUpdate={handleOptionUpdate}
             handleChange={(e) => handleQuestionTextChange(e.target.value)}
           />
         )}
         {questionType === "multiple-choices" && (
           <InputCheckBoxes
+            required
             onUpdate={handleOptionUpdate}
             handleChange={(e) => handleQuestionTextChange(e.target.value)}
           />
         )}
 
         <div className="flex flex-col">
-          <label htmlFor="type" className="font-bold">
+          <label htmlFor={`type-${question.id}`} className="font-bold">
             Type
           </label>
           <select
             value={questionType}
-            name="type"
+            id={`type-${question.id}`}
             onChange={(e) => handleQuestionTypeChange(e.target.value)}
             className="border-2 h-10 rounded-md"
           >

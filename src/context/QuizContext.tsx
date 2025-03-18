@@ -1,17 +1,17 @@
 import { createContext, useEffect, useState } from "react";
-import { db } from "../firebase-config";
-import { Quiz } from "../components/interfaces/QuizInterfaces";
 import {
   collection,
-  getDocs,
   getDoc,
   addDoc,
   deleteDoc,
+  onSnapshot,
   doc,
   updateDoc,
 } from "firebase/firestore";
+import { db } from "../firebase-config";
+import { Quiz } from "../data/QuizInterfaces";
 
-interface QuizContextType {
+export interface QuizContextType {
   quizzes: Quiz[] | null;
   addQuiz: (quiz: Quiz) => Promise<void>;
   deleteQuiz: (id: string) => Promise<void>;
@@ -26,74 +26,51 @@ export interface QuizProviderProps {
 }
 
 export const QuizProvider = ({ children }: QuizProviderProps) => {
-  const quizesRef = collection(db, "quizzes");
-  const [quizzes, setQuizes] = useState<Quiz[]>([]);
-
-  const fetchQuizes = async () => {
-    try {
-      const data = await getDocs(quizesRef);
-      if (data.empty) {
-        console.warn("No quizzes found.");
-        setQuizes([]);
-        return;
-      }
-      setQuizes(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    } catch (error) {
-      console.error("Error fetching quizzes:", error);
-      setQuizes([]);
-    }
-  };
+  const quizzesRef = collection(db, "quizzes");
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
 
   useEffect(() => {
-    fetchQuizes();
+    onSnapshot(quizzesRef, (snapshot) => {
+      setQuizzes(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    });
   }, []);
+
   const addQuiz = async (quiz: Quiz) => {
     try {
-      await addDoc(quizesRef, quiz);
-      fetchQuizes();
+      await addDoc(quizzesRef, quiz);
     } catch (error) {
       console.error("Error adding quiz:", error);
     }
   };
+
   const deleteQuiz = async (id: string) => {
     try {
       await deleteDoc(doc(db, "quizzes", id));
-      fetchQuizes();
     } catch (error) {
       console.error("Error deleting quiz:", error);
     }
   };
+
   const updateQuiz = async (id: string, quiz: Quiz) => {
     try {
-      const itemRef = doc(db, "quizzes", id);
-      await updateDoc(itemRef, { ...quiz });
-      fetchQuizes();
-      console.log("item updated");
+      const quizRef = doc(db, "quizzes", id);
+      await updateDoc(quizRef, { ...quiz });
     } catch (error) {
-      console.error("Error updating item:", error);
+      console.error("Error updating quiz:", error);
     }
   };
 
-  const getQuizById: (id: string) => Promise<Quiz | null> = async (
-    id: string
-  ) => {
+  const getQuizById = async (id: string): Promise<Quiz | null> => {
     try {
-      const docRef = doc(db, "quizzes", id);
-      const docSnap = await getDoc(docRef);
+      const quizRef = doc(db, "quizzes", id);
+      const docSnap = await getDoc(quizRef);
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          title: data.title,
-          description: data.description,
-          questions: data.questions || [],
-        };
+        return { ...docSnap.data(), id: docSnap.id };
       } else {
-        console.log("No such document!");
         return null;
       }
     } catch (error) {
-      console.error("Error getting document:", error);
+      console.error("Error getting quiz:", error);
       return null;
     }
   };
