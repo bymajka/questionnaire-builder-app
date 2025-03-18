@@ -10,7 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-.env
+#Unitl I don't have host I've not included .env to .gitIgnore
 *.local
 
 # Editor directories and files
