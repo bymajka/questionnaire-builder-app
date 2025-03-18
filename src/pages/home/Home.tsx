@@ -4,6 +4,8 @@ import QuizCard from "./QuizCard";
 import Button from "../../utils/Button";
 import { NavLink } from "react-router";
 import { countResponsesForQuiz } from "../../utils/Responses";
+import { Quiz } from "../../data/QuizInterfaces";
+import Filter from "../../utils/Filter";
 
 const Home = () => {
   const quizContext = useContext(QuizContext);
@@ -13,6 +15,10 @@ const Home = () => {
   if (!quizContext) return null;
   const quizzes = quizContext.quizzes;
   const [pages, setPages] = useState(1);
+  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[] | undefined>(
+    []
+  );
+  const [filterParams, setFilterParams] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!quizzes?.length) return;
@@ -23,12 +29,19 @@ const Home = () => {
           count: await countResponsesForQuiz(quiz.id.toString()),
         }))
       );
+      setFilteredQuizzes(quizzes);
       setResponsesCount(
         Object.fromEntries(counts.map(({ id, count }) => [id, count]))
       );
     };
     fetchResponsesCount();
   }, [quizzes]);
+
+  useEffect(() => {
+    if (!quizzes?.length) return;
+    setFilteredQuizzes(Filter({ quizzes, filterParams }));
+    setPages(1);
+  }, [quizzes, filterParams]);
 
   return (
     <div className="flex flex-col">
@@ -40,8 +53,37 @@ const Home = () => {
           styles="absolute right-6 top-6"
         />
       </NavLink>
+      <div className="flex flex-row mx-auto gap-3 mb-3">
+        <input
+          type="text"
+          id="title-filter"
+          className="border-2 p-2 rounded-md"
+          onChange={(e) => {
+            setFilterParams({ ...filterParams, title: e.target.value });
+          }}
+          placeholder="Filter by title"
+        />
+        <input
+          type="text"
+          id="title-filter"
+          onChange={(e) => {
+            setFilterParams({ ...filterParams, description: e.target.value });
+          }}
+          className="border-2 p-2 rounded-md"
+          placeholder="Filter by description"
+        />
+        <input
+          type="text"
+          id="title-filter"
+          onChange={(e) => {
+            setFilterParams({ ...filterParams, questions: e.target.value });
+          }}
+          className="border-2 p-2 rounded-md"
+          placeholder="Filter by questions count"
+        />
+      </div>
       <div className="grid grid-cols-3 gap-4 place-items-center">
-        {quizzes?.slice(9 * (pages - 1), 9 * pages).map((quiz) => (
+        {filteredQuizzes?.slice(9 * (pages - 1), 9 * pages).map((quiz) => (
           <QuizCard
             key={quiz.id}
             {...quiz}
@@ -49,11 +91,13 @@ const Home = () => {
           />
         ))}
       </div>
-      {(quizzes?.length === 0 && (
-        <h2 className="text-2xl">No quizzes found</h2>
+      {(filteredQuizzes?.length === 0 && (
+        <h2 className="text-2xl text-indigo-950 absolute top-1/2 left-1/2 transform -translate-x-1/2">
+          No quizzes found
+        </h2>
       )) || (
         <h2 className="text-2xl text-center">
-          {pages} / {quizzes && Math.ceil(quizzes.length / 9)}
+          {pages} / {filteredQuizzes && Math.ceil(filteredQuizzes.length / 9)}
         </h2>
       )}
       <div className="flex flex-row mx-auto">
@@ -64,7 +108,9 @@ const Home = () => {
         />
         <Button
           styles={`${
-            quizzes && pages < Math.ceil(quizzes.length / 9) ? "" : "hidden"
+            filteredQuizzes && pages < Math.ceil(filteredQuizzes.length / 9)
+              ? ""
+              : "hidden"
           }`}
           text="Next"
           onClick={() => setPages(pages + 1)}
